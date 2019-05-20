@@ -59,9 +59,6 @@ if [ -z "$snap_count" ]; then
 elif ! [[ "$snap_count" =~ ^[0-9]+$ ]]; then
     echo -e "Invalid count: $snap_count" >&2
     exit 1
-elif [ $snap_count -eq 0 ]; then
-    echo -e "Invalid count: $snap_count" >&2
-    exit 1
 fi
 
 # Check for additional argument
@@ -123,7 +120,11 @@ for ((i=$snap_max; i > 0; i--)); do
 done
 
 # Create snapshot
-$ZFS snapshot -r "${filesystem}@${snap_name}.0"
+if [ $snap_count -gt 0 ]; then
+    $ZFS snapshot -r "${filesystem}@${snap_name}.0"
+else
+    true
+fi
 if [ $? -ne 0 ]; then
     echo -e "Error: Creating snapshot failed!" >&2
     echo -e "${filesystem}@${snap_name}.0" >&2
